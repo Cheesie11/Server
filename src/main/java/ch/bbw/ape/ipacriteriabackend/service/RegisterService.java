@@ -20,7 +20,6 @@ public class RegisterService {
     @Value("${db.url}")
     private String url;
 
-
     @Value("${db.user}")
     private String user;
 
