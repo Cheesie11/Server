@@ -1,9 +1,9 @@
 package ch.bbw.ape.ipacriteriabackend.controller;
 
+import ch.bbw.ape.ipacriteriabackend.dto.AuthRequestDto;
 import ch.bbw.ape.ipacriteriabackend.service.AuthService;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,13 +17,8 @@ public class AuthController {
         this.authService = authService;
     }
 
-    public record AuthRequest(
-            @NotBlank String username,
-            @NotBlank String password
-    ) {}
-
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody AuthRequest request) {
+    public ResponseEntity<?> register(@Valid @RequestBody AuthRequestDto request) {
         try {
             authService.register(request.username(), request.password());
             return ResponseEntity.ok("Registration successful");
@@ -33,7 +28,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody AuthRequest request) {
+    public ResponseEntity<?> login(@Valid @RequestBody AuthRequestDto request) {
         boolean success = authService.login(request.username(), request.password());
         if (success) return ResponseEntity.ok("Login successful");
         return ResponseEntity.status(401).body("Invalid credentials");
