@@ -2,7 +2,6 @@ package ch.bbw.ape.ipacriteriabackend.service;
 
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.mongodb.ConnectionString;
@@ -25,8 +24,6 @@ public class AuthService {
     @Value("${db.pwd}")
     private String pwd;
 
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
     private MongoCollection<Document> getUsersCollection() {
         String connectionString = String.format(
                 "mongodb+srv://%s:%s@%s/?retryWrites=true&w=majority",
@@ -43,27 +40,43 @@ public class AuthService {
         return database.getCollection("users");
     }
 
-    public void register(String username, String password) {
+    public void register(String firstname, String lastname) {
+        if (firstname == null || lastname == null) {
+            throw new RuntimeException("Firstname and lastname must not be null");
+        }
+
         MongoCollection<Document> users = getUsersCollection();
 
-        if (users.find(Filters.eq("username", username)).first() != null) {
-            throw new RuntimeException("Username already exists");
+        Document existingUser = users.find(
+                Filters.and(
+                        Filters.eq("firstname", firstname),
+                        Filters.eq("lastname", lastname)
+                )
+        ).first();
+
+        if (existingUser != null) {
+            throw new RuntimeException("User already exists");
         }
 
         Document doc = new Document()
-                .append("username", username)
-                .append("password", passwordEncoder.encode(password));
+                .append("firstname", firstname)
+                .append("lastname", lastname);
 
         users.insertOne(doc);
     }
 
-    public boolean login(String username, String password) {
+    public boolean login(String firstname, String lastname) {
+        if (firstname == null || lastname == null) {
+            return false;
+        }
+
         MongoCollection<Document> users = getUsersCollection();
 
-        Document userDoc = users.find(Filters.eq("username", username)).first();
-        if (userDoc == null) return false;
-
-        String hashedPassword = userDoc.getString("password");
-        return passwordEncoder.matches(password, hashedPassword);
+        return users.find(
+                Filters.and(
+                        Filters.eq("firstname", firstname),
+                        Filters.eq("lastname", lastname)
+                )
+        ).first() != null;
     }
 }

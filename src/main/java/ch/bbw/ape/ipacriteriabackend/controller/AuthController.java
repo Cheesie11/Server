@@ -20,7 +20,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody AuthRequestDto request) {
         try {
-            authService.register(request.username(), request.password());
+            authService.register(request.firstname(), request.lastname());
             return ResponseEntity.ok("Registration successful");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -29,7 +29,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody AuthRequestDto request) {
-        boolean success = authService.login(request.username(), request.password());
+        boolean success = authService.login(request.firstname(), request.lastname());
         if (success) return ResponseEntity.ok("Login successful");
         return ResponseEntity.status(401).body("Invalid credentials");
     }
