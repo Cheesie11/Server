@@ -1,0 +1,4 @@
+db:
+  url: pokemonquiz.amd9zke.mongodb.net
+  user: root
+  pwd: 1233
