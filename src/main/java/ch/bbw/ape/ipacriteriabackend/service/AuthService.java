@@ -26,7 +26,7 @@ public class AuthService {
 
     private MongoCollection<Document> getUsersCollection() {
         String connectionString = String.format(
-                "mongodb+srv://%s:%s@%s/?retryWrites=true&w=majority",
+                "mongodb+srv://%s:%s@%s/?retryWrites=true&w=majority&appName=names",
                 user, pwd, url
         );
 
@@ -36,7 +36,7 @@ public class AuthService {
                         .build()
         );
 
-        MongoDatabase database = mongoClient.getDatabase("users_db");
+        MongoDatabase database = mongoClient.getDatabase("ipa-criteria-backend");
         return database.getCollection("users");
     }
 
