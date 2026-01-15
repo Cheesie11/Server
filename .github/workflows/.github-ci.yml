@@ -3,7 +3,7 @@ name: CI/CD von IPA-Criteria
 on:
     push:
         branches:
-            - main
+            - master
 
 jobs:
     build:
