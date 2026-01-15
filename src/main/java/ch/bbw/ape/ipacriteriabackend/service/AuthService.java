@@ -43,13 +43,16 @@ public class AuthService {
         logger.info("User saved successfully with ID: {}", savedPerson.getId());
     }
 
-    public boolean login(String firstname, String lastname) {
+    public Person login(String firstname, String lastname) {
         if (firstname == null || lastname == null) {
-            return false;
+            throw new RuntimeException("Firstname and lastname must not be null");
         }
 
         Person person = personRepository.findByFirstnameAndLastname(firstname, lastname);
-        return person != null;
+        if (person == null) {
+            throw new RuntimeException("Invalid credentials");
+        }
+        return person;
     }
 }
 
