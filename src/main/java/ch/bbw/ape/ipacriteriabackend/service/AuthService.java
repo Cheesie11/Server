@@ -1,68 +1,46 @@
 package ch.bbw.ape.ipacriteriabackend.service;
 
-import org.bson.Document;
-import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
+import ch.bbw.ape.ipacriteriabackend.person.Person;
+import ch.bbw.ape.ipacriteriabackend.person.PersonRepository;
 
 @Service
 public class AuthService {
 
-    @Value("${db.url}")
-    private String url;
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
-    @Value("${db.user}")
-    private String user;
+    private final PersonRepository personRepository;
 
-    @Value("${db.pwd}")
-    private String pwd;
-
-    private MongoCollection<Document> getUsersCollection() {
-        String connectionString = String.format(
-                "mongodb+srv://%s:%s@%s/?retryWrites=true&w=majority&appName=names",
-                user, pwd, url
-        );
-
-        MongoClient mongoClient = MongoClients.create(
-                MongoClientSettings.builder()
-                        .applyConnectionString(new ConnectionString(connectionString))
-                        .build()
-        );
-
-        MongoDatabase database = mongoClient.getDatabase("ipa-criteria-backend");
-        return database.getCollection("users");
+    public AuthService(PersonRepository personRepository) {
+        this.personRepository = personRepository;
     }
 
     public void register(String firstname, String lastname) {
+        logger.info("Registering user: {} {}", firstname, lastname);
+        
         if (firstname == null || lastname == null) {
+            logger.error("Firstname or lastname is null");
             throw new RuntimeException("Firstname and lastname must not be null");
         }
 
-        MongoCollection<Document> users = getUsersCollection();
+        Person existingPerson = personRepository.findByFirstnameAndLastname(firstname, lastname);
 
-        Document existingUser = users.find(
-                Filters.and(
-                        Filters.eq("firstname", firstname),
-                        Filters.eq("lastname", lastname)
-                )
-        ).first();
-
-        if (existingUser != null) {
+        if (existingPerson != null) {
+            logger.warn("User already exists: {} {}", firstname, lastname);
             throw new RuntimeException("User already exists");
         }
 
-        Document doc = new Document()
-                .append("firstname", firstname)
-                .append("lastname", lastname);
+        Person person = Person.builder()
+                .firstname(firstname)
+                .lastname(lastname)
+                .build();
 
-        users.insertOne(doc);
+        logger.info("Saving user to database: {}", person);
+        Person savedPerson = personRepository.save(person);
+        logger.info("User saved successfully with ID: {}", savedPerson.getId());
     }
 
     public boolean login(String firstname, String lastname) {
@@ -70,13 +48,9 @@ public class AuthService {
             return false;
         }
 
-        MongoCollection<Document> users = getUsersCollection();
-
-        return users.find(
-                Filters.and(
-                        Filters.eq("firstname", firstname),
-                        Filters.eq("lastname", lastname)
-                )
-        ).first() != null;
+        Person person = personRepository.findByFirstnameAndLastname(firstname, lastname);
+        return person != null;
     }
 }
+
+
