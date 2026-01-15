@@ -13,6 +13,16 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>ipa-criteria-backend</name>
     <description>ipa-criteria-backend</description>
+    <packaging>jar</packaging>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>Ipa-Criteria Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/Cheesie11/Server</url>
+        </repository>
+    </distributionManagement>
+
     <url/>
     <licenses>
         <license/>
