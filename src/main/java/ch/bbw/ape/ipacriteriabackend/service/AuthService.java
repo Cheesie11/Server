@@ -24,17 +24,21 @@ public class AuthService {
     @Value("${db.pwd}")
     private String pwd;
 
-    private MongoCollection<Document> getUsersCollection() {
+    protected MongoClient createMongoClient(String connectionString) {
+        return MongoClients.create(
+                MongoClientSettings.builder()
+                        .applyConnectionString(new ConnectionString(connectionString))
+                        .build()
+        );
+    }
+
+    public MongoCollection<Document> getUsersCollection() {
         String connectionString = String.format(
                 "mongodb+srv://%s:%s@%s/?retryWrites=true&w=majority&appName=names",
                 user, pwd, url
         );
 
-        MongoClient mongoClient = MongoClients.create(
-                MongoClientSettings.builder()
-                        .applyConnectionString(new ConnectionString(connectionString))
-                        .build()
-        );
+        MongoClient mongoClient = createMongoClient(connectionString);
 
         MongoDatabase database = mongoClient.getDatabase("ipa-criteria-backend");
         return database.getCollection("users");
