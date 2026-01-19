@@ -1,8 +1,8 @@
 package ch.bbw.ape.ipacriteriabackend.service;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
+
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,8 +10,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthServiceTest {
@@ -39,14 +40,13 @@ public class AuthServiceTest {
 
     @Test
     void getUsersCollection_returnsUsersCollection() {
-        when(mongoClient.getDatabase("ipa-criteria-backend"))
-                .thenReturn(mongoDatabase);
+        when(mongoClient.getDatabase("ipa-criteria-backend")).thenReturn(mongoDatabase);
 
-        when(mongoDatabase.getCollection("users"))
-                .thenReturn(usersCollection);
+        when(mongoDatabase.getCollection("users")).thenReturn(usersCollection);
 
         MongoCollection<Document> result = authService.getUsersCollection();
 
         assertEquals(usersCollection, result);
     }
+
 }
